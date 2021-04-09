@@ -1,0 +1,9 @@
+hive table types: # interview question..
+1. managed table : for Hive Location point out
+2. external table :  
+Assignment 1.differences 2. advantages & dis advantages
+2. hive casesensetive or not
+
+
+
+

@@ -1,0 +1,96 @@
+* hive > tab.
+
+*by default inner join performe.
+
+hive > set hive.auto.convert.join=true;
+hive > user db;
+
+*distribute by
+hive > select * from product_tb
+        > distribute by by p_prize
+        > sort by p_prize desc;
+
+* if we use same column in sort & distrubute that time we use 
+hive > select * from product_tb
+       > cluster by p_prize;
+
+hive > select * from product_tb
+        > distribute by by p_prize #sort by id 
+        > sort by p_prize;              #sort assending order
+
+hive > select * from product_tb
+        > distribute by by p_id  
+        > sort by p_id,p_prize;          # first id then prized based sort
+
+* union - column and data type have to be same 
+
+*for describe
+hive >desc extended product_tb;
+
+* command- only schema copy not data
+hive >create table product_tb1
+        >like product_tb1;
+
+Q. if load command load two time then its loads two time, commend for overwrite.
+
+* union all
+hive > select prod.p_id,prod.p_name,prod.p_prize
+        > from ( select p.p_id, p.p_name, p.p_prize as prize from product tb p
+        > union all
+        > select pr.p_id,pr.p_name,pr.p_prize as prize from product_tb1 pr) prod
+        >;
+
+* for typecasting .. change the type
+hive > select prod.p_id,prod.p_name,prod.p_prize
+        > from ( select p.p_id, p.p_name, p.p_prize type as prize from product tb p
+        > union all
+        > select pr.p_id,pr.p_name,pr.p_prize as prize from product_tb1 pr) prod
+        >;
+
+*view  - 
+Q. pii data? & which column ?
+
+hive > create view product_view 
+        > as
+        > select p_name,p_prize from product_tb;
+
+hive >select * from product_view;
+hive >desc product_view;
+hive >desc extended product_view;
+hive >drop view if exists product_view;
+
+*indexing
+
+hive > create index managed_index_tb
+        > on table managed_tb(name)
+        > as 'org.apache.hadoop.hive.ql.index.compact.CompactIndexHandler'
+        > idxproperties('created_by'='adi')
+        > WITH DEFERRED REBUILD;
+hive > desc hive_db_managed_tb_managed_index_tb_;
+hive > select * from hive_db_managed_tb_managed_index_tb_;
+hive > show formatted index on managed_tb;
+hive > drop index if exixts managed_index_tb on table managed_tb;
+	
+
+* hdfs default port 8020
+
+Q. import incremental data from sqoop, every time write into new file?
+
+emp_id
+emp_name
+emp_address
+emp_joining_month
+emp_joining_year
+
+*--targe-dir _____current_time
+* current_timestamp = ____ ,for linux
+hive external partition table
+
+emp_id
+emp_name
+emp_address
+emp_status[new joiner, rejoiner]
+partition-column(join_year, join_month)
+
+-managed table, load into dynamic external partition.. every time overwrite 
+

@@ -1,0 +1,85 @@
+*import retail_db data into hdfs
+$ sqoop import-all-tables --connect 'jdbc:mysql://localhost:3306/retail_db' --username root --password cloudera -m 1 --warehouse-dir /user/cloudera/retail_db
+$ hadoop fs -ls /user/cloudera/retail_db/orders
+
+*
+>>> from pyspark import SparkContext
+>>> sc.stop()
+>>> from pyspark import SparkConf
+>>> conf = SparkConf().setAppName("rdd1").set('spark.executor.memory','100GB')
+>>>sc=SparkContext(conf=conf)
+
+!--
+>>> order_rdd=sc.textFile("hdfs:///user/cloudera/retail_db/orders/part-m-00000")
+>>> order_rdd.take(10)
+
+>>> order_items_rdd=sc.textFile("hdfs:///user/cloudera/retail_db/order_items/part-m-00000")
+>>> order_items_rdd.take(10)
+
+>>> categories_rdd=sc.textFile("hdfs:///user/cloudera/retail_db/categories/part-m-00000")
+>>> categories_rdd.take(10)
+
+>>> customers_rdd=sc.textFile("hdfs:///user/cloudera/retail_db/customers/part-m-00000")
+>>> customers_rdd.take(10)
+
+>>> departments_rdd=sc.textFile("hdfs:///user/cloudera/retail_db/departments/part-m-00000")
+>>> departments_rdd.take(10)
+
+>>> products_rdd=sc.textFile("hdfs:///user/cloudera/retail_db/departments/part-m-00000")
+>>> products_rdd.take(10)
+--!
+
+!--
+*** word count program
+txtfile:
+$ vi inputdata.txt
+
+1. to read input file
+>>> input_data=sc.textFile("file:///home/cloudera/inputdata.txt")
+>>> print(input_data)
+>>> input_data.take(20)
+
+2. split input data into seperate word
+>>> flatmap_input_data=input_data.flatMap(lambda z : z.split(" "))
+>>> flatmap_input_data.take(20)
+
+-for count all the data
+>>> flatmap_input_data.count()
+
+3. assign 1 to each word
+>>> map_flatmap_input_data = flatmap_input_data.map(lambda z : (z,1))
+>>> map_flatmap_input_data.take(20)
+
+4. count no. of word per key word
+>>> reduce_map_flatmap_input_data = map_flatmap_input_data.reduceByKey(lambda x,z : x+z)
+
+-for collect all data from rdd
+>>> reduce_map_flatmap_input_data.collect()
+
+5. saveAsTextFile
+>>> reduce_map_flatmap_input_data.saveAsTextFile("hdfs:///user/inputdata2.txt")
+
+****at hdfs
+
+$ hadoop fs -ls /user/inputdata2.txt
+$ hadoop fs -cat /user/inputdata2.txt/part-00000 # parts are depends on data length.
+
+--!
+
+!--
+***join
+
+>>> rdd01=sc.parallelize([("one",1),("two",1),("three",4)])
+>>> rdd02=sc.parallelize([("one",1),("two",1),("four",1)])
+
+>>> rdd03=rdd01.join(rdd02)
+>>> rdd03.collect()
+output : [('two', (1, 1)), ('one', (1, 1))]
+
+***union
+
+>>> rdd04=rdd01.union(rdd02)
+>>> rdd04.collect()
+output : [('one', 1), ('two', 1), ('three', 4), ('one', 1), ('two', 1), ('four', 1)]
+--! 
+

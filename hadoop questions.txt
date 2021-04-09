@@ -1,0 +1,64 @@
+1. What is “speculative execution” in Hadoop?
+	If a node appears to be executing a task slower, the master node can redundantly execute another instance of the same 
+	task on another node. Then, the task which finishes first will be accepted 
+	and the other one is killed. 
+	This process is called “speculative execution”.
+	
+2. How do you define “Rack Awareness” in Hadoop?
+	 Rack Awareness is the algorithm in which the “NameNode” decides how blocks and their replicas are placed, based on rack definitions to minimize network traffic between “DataNodes” within the same rack. Let’s say we consider replication factor 3 (default), the policy is that “for every block of data, two copies will exist in one rack, third copy in a different rack”. This rule is known as the “Replica Placement Policy"
+	
+		To improve the network performance: In general, you will find greater network 
+		bandwidth between machines in the same rack than the machines residing in different rack. So, the Rack Awareness helps to reduce write traffic in between different racks and thus providesa better write performance. 
+		To prevent loss of data: I don’t have to worry about the data even if an entire rack fails because of the switch failure or power failure. And if one thinks about it, it will make sense, as it is said that never put all your eggs in the same basket.
+	
+3. What is a “Combiner”? 
+	A “Combiner” is a mini “reducer” that performs the local “reduce” task. 
+	It receives the input from the “mapper” on a particular “node” and sends the output to the “reducer”. “Combiners” help in enhancing the efficiency of “MapReduce” by reducing the quantum of data that is required to be sent to the “reducers”.
+	
+4. How will you write a custom partitioner?
+	Custom partitioner for a Hadoop job can be written easily by following the below steps:
+
+		Create a new class that extends Partitioner Class
+		Override method – getPartition, in the wrapper that runs in the MapReduce.
+		Add the custom partitioner to the job by using method set Partitioner or add the custom partitioner to the job as a config file
+		
+5. What is the role of a MapReduce Partitioner?
+	A partitioner divides the intermediate key-value pairs produced by map tasks into partition. The total number of partition is equal to the number of reducers where each partition is processed by the corresponding reducer. The partitioning is done using the hash function based on a single key or group of keys. The default partitioner available in Hadoop is HashPartitioner.
+	
+6. What is the difference between Input Split and HDFS block?
+	 HDFS block defines how the data is physically divided in HDFS whereas input split defines the logical boundary of the records required for processing it.
+	
+7. What is a NameNode in Hadoop?
+	The NameNode is the master node that manages all the DataNodes (slave nodes). It records the metadata information regarding all the files stored in the cluster (on the DataNodes), e.g. The location of blocks stored, the size of the files, permissions, hierarchy, etc.
+	
+8. What is a DataNode?
+	DataNodes are the slave nodes in HDFS. It is a commodity hardware that provides storage for the data. It serves the read and write request of the HDFS client. 
+	
+9. What is Secondary NameNode? Is it a substitute or back up node for the NameNode?
+	Here, you should also mention the function of the Secondary NameNode while answering the later part of this question so as to provide clarity:
+
+			A Secondary NameNode is a helper daemon that performs checkpointing in HDFS. No, it is not a backup or a substitute node for the NameNode. It periodically, takes the edit logs (meta data file) from NameNode and merges it with the FsImage (File system Image) to produce an updated FsImage as well as to prevent the Edit Logs from becoming too large
+		
+10.What do you mean by meta data in HDFS? List the files associated with metadata.
+	The metadata in HDFS represents the structure of HDFS directories and files. It also includes the various information regarding HDFS directories and files such as ownership, permissions, quotas, and replication factor.
+
+  ?	Tip: While listing the files associated with metadata, give a one line definition of each metadata file.
+		There are two files associated with metadata present in the NameNode:
+
+			FsImage: It contains the complete state of the file system namespace since the start of the NameNode.
+			EditLogs: It contains all the recent modifications made to the file system with respect to the recent FsImage.
+			
+11.  Explain “Big Data” ?
+		“Big data” is the term for a collection of large and complex data sets, that makes it difficult to process using relational database management tools or traditional data processing applications. It is difficult to capture, curate, store, search, share, transfer, analyze, and visualize Big data. Big Data has emerged as an opportunity for companies. Now they can successfully derive value from their data and will have a distinct advantage over their competitors with enhanced business decisions making capabilities.
+				
+		
+12. What do you know about the term “Big Data”?
+		Big Data is a term associated with complex and large datasets. A relational database cannot handle big data, and that’s why special tools and methods are used to perform operations on a vast collection of data. Big data enables companies to understand their business better and helps them derive meaningful information from the unstructured and raw data collected on a regular basis. Big data also allows the companies to take better business decisions backed by data.
+	
+13. Commodity Hardware?
+	Commodity Hardware refers to inexpensive systems that do not have high availability or high quality. Commodity Hardware consists of RAM because there are specific services that need to be executed on RAM. Hadoop can be run on any commodity hardware and does not require any super computer s or high end hardware configuration to execute jobs
+	
+	
+	
+	
+	

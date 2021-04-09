@@ -1,0 +1,94 @@
+1. command - import into hive default
+
+*mysql>
+mysql> create database bwtt_sqoop;
+mysql> create table department(dno int,dname varchar(22),emp_id int);
+mysql> insert into department values(100,'computer',1),(101,'information technology',2);
+mysql> select * from department;
+
+*sqoop command>
+$ sqoop import --connect "jdbc:mysql://localhost:3306/bwtt_sqoop" --username root --password cloudera --table department --hive-import -m 1
+
+-bydefault goes to default
+ Table default.department stats: [numFiles=1, totalSize=70]
+
+*hive
+
+then check the data table in database hive default as follow
+hive> show databases;
+hive> use default;
+hive> show tables;
+hive> select * from department;
+OK
+100	computer	1
+101	information technology	2
+103	science	3
+104	maths	4
+
+2. command - import into hive database
+
+*sqoop 
+- in hive brainworks.db.{department} db alredy have to exist.
+$ sqoop import --connect "jdbc:mysql://localhost:3306/bwtt_sqoop" --username root --password cloudera --table department --hive-import -m 1 --hive-table brainworks_db.department
+
+Table brainworks_db.department stats: [numFiles=1, totalSize=70]
+
+*hive
+hive> use brainworks_db;
+hive> show tables;
+hive> select * from department;
+OK
+100	computer	1
+101	information technology	2
+103	science	3
+104	maths	4
+
+--* now same sqoop command runs many time 
+--* check table data, that data table appended next to next  
+hive> select * from department;
+OK
+100	computer	1
+101	information technology	2
+103	science	3
+104	maths	4
+100	computer	1
+101	information technology	2
+103	science	3
+104	maths	4
+
+hive> select * from department;
+OK
+100	computer	1
+101	information technology	2
+103	science	3
+104	maths	4
+100	computer	1
+101	information technology	2
+103	science	3
+104	maths	4
+100	computer	1
+101	information technology	2
+103	science	3
+104	maths	4
+
+3. command - export
+{
+-hive to export data into mysql db
+-create demo(db) in mysql
+mysql> create database demo;
+mysql> use demo;
+mysql> create table department(dno int,dname varchar(22),emp_id int);
+$ sqoop export --connect "jdbc:mysql://localhost:3306/demo" --username root --password cloudera --table department -m 1 --hcatalog-database brainworks_db --hcatalog-table department;
+mysql> select * from department;
+}
+
+*sqoop
+
+** hive> show create table department; 
+- for describe and all details
+'hdfs://quickstart.cloudera:8020/user/hive/warehouse/brainworks_db.db/department'
+
+$ sqoop export --connect "jdbc:mysql://localhost:3306/bwtt_sqoop" --username root --password cloudera --table department -m 1 --hcatalog-database brainworks_db --hcatalog-table department;
+
+
+

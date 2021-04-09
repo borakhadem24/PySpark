@@ -1,0 +1,113 @@
+*count common element in a column
+hive> select name,count(name) from unique group by name;
+hive> select name,collect_list(name) from unique group by name;
+hive> select id,collect_list(name) from unique group by name,id;
+hive> select name,collect_set(name) from unique group by name;
+
+* shell script
+1*
+echo enter a databasename
+         read databasename
+echo enter a tablename
+         read tablename
+echo enter a mapper
+         read mapper
+echo enter a columnname
+         read columnname
+echo enter a filename
+        filename
+path='jdbc:mysql://localhost:3306'
+path1='/user/cloudera'
+
+sqoop import --connect $path/$databasename --username root -p --table $tablename -m $mapper --split-by $columnname --target-dir $path/$filename
+
+2*
+
+-import.sh retail.db order
+
+db=${1}   
+table=${2}
+hivedb=${3}
+hivetable=${4}
+
+sqoop import --connect 'jdbc:mysql://localhost:3306/${db} --username root -p --table ${table} --hive-import --hive-table ${db}.${table}
+
+
+* hive bucketing..
+
+* make directory in hadoop
+$ hadoop fs -mkdir bucket
+* then copy downladed file 
+$ hadoop fs -copyFromLocal /home/cloudera/Downloads/real_state.csv bucket/
+$ hadoop fs -ls /user/cloudera/bucket
+
+*hive
+hive (hive_db)> create external table ext_bucket_sample(
+              > street string,
+              > city string,
+              > zip bigint,
+              > state string,
+              > beds int,
+              > baths int,
+              > sq_feet bigint,
+              > flat_type string,
+              > price bigint
+              > )
+              > row format delimited
+              > fields terminated by ','
+              > lines terminated by '\n'
+              > location '/user/cloudera/filename.txt
+              > tblproperties("skip.header.line.count"="1")
+              >;
+hive(hive_db)> create external table ext_part_bucket(
+              > street string,
+              > zip bigint,
+              > state string,
+              > beds int,
+              > baths int,
+              > sq_feet bigint,
+              > flat_type varchar(20),
+              > price bigint
+              > )
+              > partitioned by(city string)
+              > cluster by(street) into 10 buckets            			# as well as reducer runs 10
+              > ; 
+hive(hive_db)> set hive.exec.dynamic.partition.mode=nonstrict;
+hive(hive_db)> set hive.exec.dynamic.partition=True;
+hive(hive_db)> set hive.enforce.bucketing=True;
+hive(hive_db)> insert into table ext_part_bucket partition(city)
+              > select street,zip,state,beds,baths,sq_feet,flat_type,price,city from ext_bucket_sample;
+hive(hive_db)> desc extended ext_part_bucket;
+# then pick the location
+$ hadoop fs -ls hdfs:// path.....
+
+*smb join - short-merge-bucket join
+
+hive(hive_db)> create external table ext_bucket(
+              > city string,
+              > street string,
+              > zip bigint,
+              > state string,
+              > beds int,
+              > baths int,
+              > sq_feet bigint,
+              > flat_type varchar(20),
+              > price bigint
+              > )
+              > cluster by(street) into 10 buckets            	# as well as reducer runs 10
+              > ; 
+
+hive(hive_db)> insert into table ext_bucket
+              > select city,street,zip,state,beds,baths,sq_feet,flat_type,price from ext_bucket_sample;
+
+hive(hive_db)> set hive.auto.convert.sortmerge.join=True;
+hive(hive_db)> set hive.optimize.bucketmapjoin=True;
+hive(hive_db)> set hive.optimize.bucketmapjoin.sortedmerge=True;
+hive(hive_db)> set hive.auto.convert.sortmerge.join.nonconditionaltask=True; - why we use ?
+hive(hive_db)> set hive.cli.print.header.print=ture;
+
+* 2 tables 1. ext_part_bucket 2.ext_bucket
+hive(hive_db)> select * from ext_part_bucket,ext_bucket where ext_part_bucket.Zip=ext_bucket.Zip;
+
+
+

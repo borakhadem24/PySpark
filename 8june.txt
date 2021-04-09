@@ -1,0 +1,60 @@
+* hive >select p_id,p_name,p_prize
+           >case 
+           >when p_prize <=25 then 'low'
+           >when p_prize >=26 and p_prize <=75 then 'middle'
+           >else 'high'
+           >end as val
+           >from product_tb;
+
+* hive > set hive.exec.mode.local.auto=true;
+
+* like or rlike:
+
+hive > select * form product_tb where upper(p_name) like 'C%';  #start from c
+hive > select * form product_tb where upper(p_name) like '%C%'; #middle character 
+
+hive > select * form product_tb where upper(p_name) like 'C%' and upper(p_name) like '%d%';
+hive > select * form product_tb where upper(p_name) like 'C%' or upper(p_name) like '%d%';
+
+rlike
+
+hive > select * form product_tb where p_name rlike '.*(cat|dog).*';
+hive > select * form product_tb where p_name rlike '.*(cat&dog).*';
+
+*
+hive >select p_id,avg(p_prize) from product_tb group by p_id having p_id=1;
+
+join
+*inner
+>select p.p_name,c.c_name
+>from prouct_tb p inner join customer_tb c
+> on p.p_id = c.p_id;
+
+*outer
+*left
+>select p.p_name,c.c_name
+>from prouct_tb p left outer join customer_tb c
+> on p.p_id = c.p_id;
+
+*right
+>select p.p_name,c.c_name
+>from prouct_tb p right outer join customer_tb c
+> on p.p_id = c.p_id;
+
+*full
+>select p.p_name,c.c_name
+>from prouct_tb p full outer join customer_tb c
+> on p.p_id = c.p_id;
+
+* semi * cross * etc.
+
+* order by : only single reducer will be launched , slow with huge amount of data in comapre of short by 
+ 
+hive > select * from product_tb order by round(p_prize);
+-by default assending order
+-first round then assending 
+
+* short by : first map side short then map side reducer then last reducer will ber launched 
+
+hive > select * from product_tb short by round(p_prize);
+

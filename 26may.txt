@@ -1,0 +1,66 @@
+assignment
+1*data analysis?
+2* linux - crontab (schudler)? how to work and all.
+-write a shell script which will import incremental data into hdfs using sqoop and this job will triger every day at 12 pm.?
+3* scd. slowlychangingdimansion.? what&types?
+4* how to provide comment in hive
+
+*hive bydefault metastore derby
+
+hive commands.
+
+1.hive --help
+2.hive # to login hive terminal
+
+variable
+3.hive>set hivevar:variable_name=variable_value;
+   hive>set variable_name;
+
+properties
+4.hive --hiveconf hive.cli.print.current.db=true
+5.hive --hiveconf hive.cli.print.header=true
+
+command line interface
+.hive "one shot" commands
+
+6.hive -e"select*fromcustomer_tablelimit10;" # one line execution
+7.hive -e"select*fromcustomer_tablelimit10;">/tmp/myquery #storing query resutl to file
+8.hive -S-e"select*fromcustomer_tablelimit10;">/tmp/myquery #storing query resutl to file using slient-mode.
+
+.excecuting hive queries from files
+.create .hql file having query inside it.
+
+9.$cat/root/hive/firstquery.hql # .hql file content display (hive query language)
+  select *from customer_table:
+10. run .hql file
+$ hive -f/root/hive/firstquery.hql
+
+**hive data types
+1. primitive data types
+2. complex
+   1. array - same type of the data  - a = <1,2,3>
+   2. map - key : value store           - a = {a:12}
+   3. struct - combination (array & map)  - a = {a:<1,2>,b:{a:12}}
+
+*exit from the hive 
+1.ctrl+d ,with saving
+2.ctrl+z ,without saving
+3.exit;
+4.quit
+
+* command for check safemode of namenode
+1.sudo -u hdfs hadoop dfsadmin -safemode get ..status check (namenode is present in safemode on not)
+2.sudo -u hdfs hadoop dfsadmin -safemode leave ..exit
+3.sudo -u hdfs hadoop dfsadmin -safemode enter ..for enter
+
+
+*to change the data base
+ -use bwt_hadoop;
+
+5* create table in hive
+hive> crate table if not exists student_tb(id int, name string)
+       > row format delimited
+       >fields termined by ','
+       >lines terminated by '\n'
+       >stored as textfile;
+       >load data local inpath '____/student.txt' into table student.db;

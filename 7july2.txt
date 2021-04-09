@@ -1,0 +1,12 @@
+from pyspark import SparkContext
+sc.stop()
+from pyspark import SparkConf
+conf = SparkConf().setAppName("rdd1").set('spark.executor.memory','100GB')
+sc=SparkContext(conf=conf)
+
+input_data=sc.textFile("file:///home/cloudera/inputdata.txt")
+flatmap_input_data=input_data.flatMap(lambda z : z.split(" "))
+map_flatmap_input_data = flatmap_input_data.map(lambda z : (z,1))
+reduce_map_flatmap_input_data = map_flatmap_input_data.reduceByKey(lambda x,z : x+z)
+reduce_map_flatmap_input_data.collect()
+reduce_map_flatmap_input_data.saveAsTextFile("hdfs:///user/inputdata3.txt")
